@@ -1,11 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(lib/gftp.h)
+AC_INIT
+AC_CONFIG_SRCDIR([lib/gftp.h])
+AC_CONFIG_HEADERS([config.h])
 
-AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(gftp,2.0.19)
 
-AC_GNU_SOURCE
 AC_USE_SYSTEM_EXTENSIONS
 
 AC_ARG_ENABLE(gtk20, 
@@ -36,9 +36,6 @@ AC_PROG_CC
 AC_EXEEXT
 AC_PROG_RANLIB
 AC_SYS_LARGEFILE
-dnl AC_ISC_POSIX
-AM_C_PROTOTYPES
-AC_C_CONST
 AC_C_INLINE
 AC_INTL_PRINTF
 
@@ -49,27 +46,18 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
-AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h libutil.h limits.h malloc.h pty.h strings.h sys/ioctl.h sys/time.h unistd.h stdint.h sys/mkdev.h inttypes.h)
 
-dnl AM_TYPE_PTRDIFF_T
 AC_TYPE_SOCKLEN_T
 AC_TYPE_MODE_T
 AC_TYPE_INTPTR_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
-AC_STRUCT_TM
 AC_CHECK_SIZEOF(off_t)
 
 AC_FUNC_ALLOCA
-AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MMAP
-AC_TYPE_SIGNAL
-AC_FUNC_STRFTIME
-AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(gai_strerror getaddrinfo getcwd gettimeofday getwd mkdir mktime putenv rmdir select socket strdup strstr strtod strtol uname grantpt openpty getdtablesize)
 
 # This is needed by fsplib. This check is from configure.ac in that distribution.
