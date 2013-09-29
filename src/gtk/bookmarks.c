@@ -385,7 +385,6 @@ bm_close_dialog (GtkWidget * widget, GtkWidget * dialog)
 }
 
 
-#if GTK_MAJOR_VERSION > 1 
 static void
 editbm_action (GtkWidget * widget, gint response, gpointer user_data)
 {
@@ -398,7 +397,6 @@ editbm_action (GtkWidget * widget, gint response, gpointer user_data)
         bm_close_dialog (NULL, widget);
     }
 }
-#endif
 
 
 static void
@@ -422,16 +420,9 @@ do_make_new (gpointer data, gftp_dialog_data * ddata)
     }
 
   newentry = g_malloc0 (sizeof (*newentry));
-#if GTK_MAJOR_VERSION == 1
-  newentry->path = g_strdup (str);
-
-  while ((pos = strchr (str, '/')) != NULL)
-    *pos++ = ' ';
-#else
   newentry->path = g_strdup (str);
   while ((pos = g_utf8_strchr (newentry->path, -1, '/')) != NULL)
     *pos++ = ' ';
-#endif
 
   newentry->prev = new_bookmarks;
   if (data)
@@ -793,18 +784,6 @@ entry_apply_changes (GtkWidget * widget, gftp_bookmarks_var * entry)
 }
 
 
-#if GTK_MAJOR_VERSION == 1
-
-static void
-entry_close_dialog (void * data)
-{
-  gtk_widget_destroy (bm_dialog);
-  bm_dialog = NULL;
-}
-
-
-#else
-
 static void
 bmedit_action (GtkWidget * widget, gint response, gpointer user_data)
 {
@@ -818,7 +797,6 @@ bmedit_action (GtkWidget * widget, gint response, gpointer user_data)
         bm_dialog = NULL;
     }
 }   
-#endif
 
 
 static void
@@ -844,18 +822,12 @@ edit_entry (gpointer data)
   if (entry == NULL || entry == new_bookmarks)
     return;
 
-#if GTK_MAJOR_VERSION == 1
-  bm_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (bm_dialog), _("Edit Entry"));
-  gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (bm_dialog)->action_area), 15);
-#else
   bm_dialog = gtk_dialog_new_with_buttons (_("Edit Entry"), NULL, 0,
                                            GTK_STOCK_CANCEL,
                                            GTK_RESPONSE_CANCEL,
                                            GTK_STOCK_SAVE,
                                            GTK_RESPONSE_OK,
                                            NULL);
-#endif
   gtk_window_set_wmclass (GTK_WINDOW (bm_dialog), "Edit Bookmark Entry",
                           "gFTP");
   gtk_window_set_position (GTK_WINDOW (bm_dialog), GTK_WIN_POS_MOUSE);
@@ -1038,30 +1010,8 @@ edit_entry (gpointer data)
     }
   gtk_widget_show (anon_chk);
 
-#if GTK_MAJOR_VERSION == 1
-  tempwid = gtk_button_new_with_label (_("OK"));
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (bm_dialog)->action_area), tempwid,
-		      TRUE, TRUE, 0);
-  gtk_signal_connect (GTK_OBJECT (tempwid), "clicked",
-		      GTK_SIGNAL_FUNC (entry_apply_changes),
-		      (gpointer) entry);
-  gtk_signal_connect_object (GTK_OBJECT (tempwid), "clicked",
-			     GTK_SIGNAL_FUNC (entry_close_dialog), NULL);
-  GTK_WIDGET_SET_FLAGS (tempwid, GTK_CAN_DEFAULT);
-  gtk_widget_show (tempwid);
-
-  tempwid = gtk_button_new_with_label (_("  Cancel  "));
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (bm_dialog)->action_area), tempwid,
-		      TRUE, TRUE, 0);
-  gtk_signal_connect_object (GTK_OBJECT (tempwid), "clicked",
-			     GTK_SIGNAL_FUNC (entry_close_dialog), NULL);
-  GTK_WIDGET_SET_FLAGS (tempwid, GTK_CAN_DEFAULT);
-  gtk_widget_grab_focus (tempwid);
-  gtk_widget_show (tempwid);
-#else
   g_signal_connect (GTK_OBJECT (bm_dialog), "response",
                     G_CALLBACK (bmedit_action), (gpointer) entry);
-#endif
 
   gftp_gtk_setup_bookmark_options (notebook, entry);
 
@@ -1210,9 +1160,6 @@ edit_bookmarks (gpointer data)
     {N_("/File/sep"), NULL, 0, 0, MN_("<Separator>")},
     {N_("/File/_Close"), NULL, gtk_widget_destroy, 0, MS_(GTK_STOCK_CLOSE)}
   };
-#if GTK_MAJOR_VERSION == 1
-  GtkWidget * tempwid;
-#endif
 
   if (edit_bookmarks_dialog != NULL)
     {
@@ -1223,12 +1170,6 @@ edit_bookmarks (gpointer data)
   new_bookmarks = copy_bookmarks (gftp_bookmarks);
   new_bookmarks_htable = build_bookmarks_hash_table (new_bookmarks);
 
-#if GTK_MAJOR_VERSION == 1
-  edit_bookmarks_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (edit_bookmarks_dialog),
-                        _("Edit Bookmarks"));
-  gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (edit_bookmarks_dialog)->action_area), 15);
-#else
   edit_bookmarks_dialog = gtk_dialog_new_with_buttons (_("Edit Bookmarks"),
                                                        NULL, 0, 
                                                        GTK_STOCK_CANCEL,
@@ -1236,7 +1177,6 @@ edit_bookmarks (gpointer data)
 						       GTK_STOCK_SAVE,
                                                        GTK_RESPONSE_OK,
                                                        NULL);
-#endif
   gtk_window_set_wmclass (GTK_WINDOW(edit_bookmarks_dialog), "Edit Bookmarks",
                           "gFTP");
   gtk_window_set_position (GTK_WINDOW (edit_bookmarks_dialog),
@@ -1288,31 +1228,8 @@ edit_bookmarks (gpointer data)
   gtk_ctree_set_drag_compare_func (GTK_CTREE(tree), &move_possible);
   gtk_widget_show (tree);
 
-#if GTK_MAJOR_VERSION == 1
-  tempwid = gtk_button_new_with_label (_("OK"));
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (edit_bookmarks_dialog)->action_area),
-                      tempwid, TRUE, TRUE, 0);
-  gtk_signal_connect (GTK_OBJECT (tempwid), "clicked",
-		      GTK_SIGNAL_FUNC (bm_apply_changes), NULL);
-  gtk_signal_connect (GTK_OBJECT (tempwid), "clicked",
-		      GTK_SIGNAL_FUNC (bm_close_dialog),
-                      (gpointer) edit_bookmarks_dialog);
-  GTK_WIDGET_SET_FLAGS (tempwid, GTK_CAN_DEFAULT);
-  gtk_widget_show (tempwid);
-
-  tempwid = gtk_button_new_with_label (_("  Cancel  "));
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (edit_bookmarks_dialog)->action_area),
-                      tempwid, TRUE, TRUE, 0);
-  gtk_signal_connect (GTK_OBJECT (tempwid), "clicked",
-		      GTK_SIGNAL_FUNC (bm_close_dialog),
-                      (gpointer) edit_bookmarks_dialog);
-  GTK_WIDGET_SET_FLAGS (tempwid, GTK_CAN_DEFAULT);
-  gtk_widget_grab_focus (tempwid);
-  gtk_widget_show (tempwid);
-#else
   g_signal_connect (GTK_OBJECT (edit_bookmarks_dialog), "response",
                     G_CALLBACK (editbm_action), NULL);
-#endif
 
   gtk_widget_show (edit_bookmarks_dialog);
 

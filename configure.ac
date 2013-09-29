@@ -13,11 +13,6 @@ AC_ARG_ENABLE(gtk20,
               enable_gtk20=$enableval, 
               enable_gtk20="yes")
 
-AC_ARG_ENABLE(gtkport, 
-              [  --disable-gtkport	  Disable compiling the GTK+ port], 
-              enable_gtkport=$enableval, 
-              enable_gtkport="yes")
-
 AC_ARG_ENABLE(textport, 
               [  --disable-textport	  Disable compiling the text port], 
               enable_textport=$enableval, 
@@ -66,16 +61,6 @@ AC_CHECK_TYPE(union semun, ,AC_DEFINE(_SEM_SEMUN_UNDEFINED,1,[Define if you do n
 #include <sys/ipc.h>
 #include <sys/sem.h>
 ])
-
-if test "x$enable_gtk20" = "xyes" ; then
-  PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.0.0, found_glib20=1, found_glib20=0)
-else
-  found_glib20=0;
-fi
-
-if test "x$GFTP_TEXT" = "x" -a $found_glib20 = 0 ; then
-  AM_PATH_GLIB(1.2.3, , AC_MSG_ERROR(gFTP needs GLIB 1.2.3 or higher))
-fi
 
 EXTRA_LIBS=""
 
@@ -180,21 +165,20 @@ GFTP_GTK=""
 PTHREAD_CFLAGS=""
 PTHREAD_LIBS=""
 
-# I don't have PKG_CHECK_MODULES or AM_PATH_GLIB check for gthread because
-# the text port doesn't need to be compiled against the thread libraries
-GTHREAD_LIBS=""
+GLIB_REQUIRED_VERSION=2.0
+GTK_REQUIRED_VERSION=2.0
 
-if test "x$enable_gtkport" = "xyes" ; then
-  if test $found_glib20 = 1 -a "x$enable_gtk20" = "xyes" ; then
-    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.0, GFTP_GTK=gftp-gtk, AC_MSG_ERROR(You have GLIB 2.0 installed but I cannot find GTK+ 2.0. Run configure with --disable-gtk20 or install GTK+ 2.0))
-  fi
+PKG_CHECK_MODULES([GLIB], [glib-2.0 >= $GLIB_REQUIRED_VERSION])
 
-  if test "x$GFTP_GTK" = "x" ; then
-    AM_PATH_GTK(1.2.3, GFTP_GTK=gftp-gtk, AC_MSG_WARN(gFTP needs GTK+ 1.2.3 or higher for the graphical version. Only building the text version))
-    GTHREAD_LIBS="-lgthread"
-  else
-    GTHREAD_LIBS="-lgthread-2.0"
-  fi
+if test "x$enable_gtk20" = "xyes" ; then
+    PKG_CHECK_MODULES([GTK],
+                      [
+                       glib-2.0     >= $GLIB_REQUIRED_VERSION
+                       gthread-2.0  >= $GLIB_REQUIRED_VERSION
+                       gtk+-2.0     >= $GTK_REQUIRED_VERSION
+                      ],
+                      [GFTP_GTK=gftp-gtk],
+                      [AC_MSG_ERROR(You have GLIB 2.0 installed but I cannot find GTK+ 2.0. Run configure with --disable-gtk20 or install GTK+ 2.0)])
 
   if test "x$GFTP_GTK" = xgftp-gtk; then
     case $host in
@@ -264,7 +248,6 @@ if test "x$enable_gtkport" = "xyes" ; then
 fi
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
-AC_SUBST(GTHREAD_LIBS)
 AC_SUBST(GFTP_GTK)
 
 SSL_LIBS=""
