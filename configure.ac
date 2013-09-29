@@ -265,13 +265,13 @@ if test "x$enable_ssl" = "xyes" ; then
 fi
 AC_SUBST(SSL_LIBS)
 
-AM_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION([0.18.1])
+AM_GNU_GETTEXT([external])
 
 AC_CHECK_PROG(DB2HTML, db2html, true, false)
 AM_CONDITIONAL(HAVE_DOCBOOK, $DB2HTML)
 
 AC_CONFIG_FILES(po/Makefile.in
-	intl/Makefile
 	Makefile
 	docs/Makefile
 	docs/sample.gftp/Makefile
