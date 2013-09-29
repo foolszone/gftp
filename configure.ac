@@ -13,6 +13,10 @@ AC_CONFIG_AUX_DIR([build-aux])
 
 AM_INIT_AUTOMAKE([-Wall tar-ustar no-dist-gzip dist-xz])
 AM_MAINTAINER_MODE([enable])
+# Support silent build rules, requires at least automake-1.11. Disable
+# by either passing --disable-silent-rules to configure or passing V=1
+# to make
+AM_SILENT_RULES([yes])
 
 AC_USE_SYSTEM_EXTENSIONS
 
