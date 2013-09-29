@@ -1,10 +1,15 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT
+AC_INIT([gFTP],
+        [2.0.19],
+        [https://bugzilla.gnome.org/enter_bug.cgi?product=gftp],
+        [gftp],
+        [http://gftp.seul.org/])
+
 AC_CONFIG_SRCDIR([lib/gftp.h])
 AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE(gftp,2.0.19)
+AM_INIT_AUTOMAKE([-Wall tar-ustar no-dist-gzip dist-xz])
 
 AC_USE_SYSTEM_EXTENSIONS
 
